@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "EasyBookmark",
-  "version": "1.1.0",
-  "description": "智能书签侧边栏，支持拼音搜索、快捷键操作和完整的书签编辑功能",
+  "version": "1.2.0",
+  "description": "智能书签侧边栏，支持拼音搜索、拖拽移动、完整编辑功能和流畅的用户体验",
 
   "permissions": [
     "bookmarks",

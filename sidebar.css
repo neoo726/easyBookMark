@@ -591,3 +591,33 @@ body {
         opacity: 1;
     }
 }
+
+/* 拖拽样式 */
+.bookmark-item {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.bookmark-item.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+.bookmark-item.drag-over {
+    background-color: #e3f2fd;
+    border: 2px dashed #1976d2;
+    border-radius: 4px;
+}
+
+.bookmark-item.drag-over .folder-header {
+    background-color: transparent;
+}
+
+/* 确保文件夹默认折叠 */
+.folder:not(.expanded) .folder-content {
+    max-height: 0;
+    overflow: hidden;
+}
+
+.folder.expanded .folder-content {
+    max-height: 2000px;
+}

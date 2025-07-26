@@ -53,6 +53,23 @@ class BookmarkSidebar {
             this.handleContextMenu(e);
         });
 
+        // 拖拽事件
+        this.bookmarksTree.addEventListener('dragstart', (e) => {
+            this.handleDragStart(e);
+        });
+
+        this.bookmarksTree.addEventListener('dragover', (e) => {
+            this.handleDragOver(e);
+        });
+
+        this.bookmarksTree.addEventListener('drop', (e) => {
+            this.handleDrop(e);
+        });
+
+        this.bookmarksTree.addEventListener('dragend', (e) => {
+            this.handleDragEnd(e);
+        });
+
         // 关闭按钮事件已隐藏
         /*
         if (this.closeButton) {
@@ -124,6 +141,7 @@ class BookmarkSidebar {
         const div = document.createElement('div');
         div.className = 'bookmark-item';
         div.dataset.id = node.id;
+        div.draggable = true;
 
         if (node.children) {
             // 文件夹
@@ -702,7 +720,8 @@ class BookmarkSidebar {
             await chrome.bookmarks.remove(id);
         }
 
-        await this.loadBookmarks();
+        // 使用局部刷新而不是全量刷新
+        this.removeBookmarkElement(id);
         this.showMessage(isFolder ? '文件夹已删除' : '书签已删除', 'success');
     }
 
@@ -858,6 +877,108 @@ class BookmarkSidebar {
         }, { once: true });
 
         document.body.appendChild(menu);
+    }
+
+    // 拖拽开始
+    handleDragStart(e) {
+        const bookmarkItem = e.target.closest('.bookmark-item');
+        if (!bookmarkItem) return;
+
+        this.draggedItem = {
+            id: bookmarkItem.dataset.id,
+            element: bookmarkItem
+        };
+
+        // 添加拖拽样式
+        bookmarkItem.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', bookmarkItem.dataset.id);
+    }
+
+    // 拖拽悬停
+    handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+
+        const targetItem = e.target.closest('.bookmark-item');
+        if (!targetItem || !this.draggedItem) return;
+
+        // 移除之前的拖拽指示
+        document.querySelectorAll('.drag-over').forEach(el => {
+            el.classList.remove('drag-over');
+        });
+
+        // 只允许拖拽到文件夹
+        const targetId = targetItem.dataset.id;
+        if (targetId && targetId !== this.draggedItem.id) {
+            // 检查目标是否为文件夹
+            chrome.bookmarks.get(targetId).then(bookmarks => {
+                if (bookmarks[0] && bookmarks[0].children !== undefined) {
+                    targetItem.classList.add('drag-over');
+                }
+            });
+        }
+    }
+
+    // 拖拽放下
+    async handleDrop(e) {
+        e.preventDefault();
+
+        const targetItem = e.target.closest('.bookmark-item');
+        if (!targetItem || !this.draggedItem) return;
+
+        const targetId = targetItem.dataset.id;
+        const draggedId = this.draggedItem.id;
+
+        if (targetId === draggedId) return;
+
+        try {
+            // 检查目标是否为文件夹
+            const targetBookmarks = await chrome.bookmarks.get(targetId);
+            if (!targetBookmarks[0] || targetBookmarks[0].children === undefined) {
+                this.showMessage('只能移动到文件夹中', 'error');
+                return;
+            }
+
+            // 执行移动操作
+            await chrome.bookmarks.move(draggedId, { parentId: targetId });
+
+            // 局部刷新：移除被拖拽的元素
+            this.draggedItem.element.remove();
+
+            this.showMessage('书签已移动', 'success');
+        } catch (error) {
+            console.error('移动失败:', error);
+            this.showMessage('移动失败: ' + error.message, 'error');
+        }
+    }
+
+    // 拖拽结束
+    handleDragEnd(e) {
+        // 清理拖拽状态
+        document.querySelectorAll('.dragging').forEach(el => {
+            el.classList.remove('dragging');
+        });
+        document.querySelectorAll('.drag-over').forEach(el => {
+            el.classList.remove('drag-over');
+        });
+
+        this.draggedItem = null;
+    }
+
+    // 局部删除书签元素（避免全量刷新）
+    removeBookmarkElement(id) {
+        const element = document.querySelector(`[data-id="${id}"]`);
+        if (element) {
+            // 添加删除动画
+            element.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            element.style.opacity = '0';
+            element.style.transform = 'translateX(-20px)';
+
+            setTimeout(() => {
+                element.remove();
+            }, 300);
+        }
     }
 }
 
