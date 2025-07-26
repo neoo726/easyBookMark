@@ -127,17 +127,17 @@ class BookmarkSidebar {
     // 渲染书签树
     renderBookmarkTree(node, container = this.bookmarksTree) {
         container.innerHTML = '';
-        
+
         if (node.children) {
             node.children.forEach(child => {
-                const element = this.createBookmarkElement(child);
+                const element = this.createBookmarkElement(child, 0); // 从0级开始
                 container.appendChild(element);
             });
         }
     }
 
     // 创建书签元素
-    createBookmarkElement(node) {
+    createBookmarkElement(node, level = 0) {
         const div = document.createElement('div');
         div.className = 'bookmark-item';
         div.dataset.id = node.id;
@@ -146,6 +146,13 @@ class BookmarkSidebar {
         if (node.children) {
             // 文件夹
             div.className += ' folder';
+
+            // 只有一级文件夹默认展开，其他级别默认折叠
+            if (level > 0) {
+                // 二级及以上文件夹默认折叠
+                div.classList.remove('expanded');
+            }
+
             div.innerHTML = `
                 <div class="folder-header" data-id="${node.id}">
                     <span class="folder-toggle">▶</span>
@@ -160,11 +167,11 @@ class BookmarkSidebar {
                 <div class="folder-content"></div>
             `;
 
-            // 递归渲染子项
+            // 递归渲染子项，传递层级信息
             const folderContent = div.querySelector('.folder-content');
             if (node.children.length > 0) {
                 node.children.forEach(child => {
-                    const childElement = this.createBookmarkElement(child);
+                    const childElement = this.createBookmarkElement(child, level + 1);
                     folderContent.appendChild(childElement);
                 });
             }
@@ -900,7 +907,10 @@ class BookmarkSidebar {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
 
+        // 查找目标文件夹（可能是文件夹本身或其子元素）
+        const targetFolder = e.target.closest('.folder');
         const targetItem = e.target.closest('.bookmark-item');
+
         if (!targetItem || !this.draggedItem) return;
 
         // 移除之前的拖拽指示
@@ -910,12 +920,14 @@ class BookmarkSidebar {
 
         // 只允许拖拽到文件夹
         const targetId = targetItem.dataset.id;
-        if (targetId && targetId !== this.draggedItem.id) {
+        if (targetId && targetId !== this.draggedItem.id && targetFolder) {
             // 检查目标是否为文件夹
             chrome.bookmarks.get(targetId).then(bookmarks => {
                 if (bookmarks[0] && bookmarks[0].children !== undefined) {
                     targetItem.classList.add('drag-over');
                 }
+            }).catch(() => {
+                // 如果获取失败，不显示拖拽指示
             });
         }
     }
@@ -924,7 +936,10 @@ class BookmarkSidebar {
     async handleDrop(e) {
         e.preventDefault();
 
+        // 查找目标文件夹
+        const targetFolder = e.target.closest('.folder');
         const targetItem = e.target.closest('.bookmark-item');
+
         if (!targetItem || !this.draggedItem) return;
 
         const targetId = targetItem.dataset.id;
@@ -935,7 +950,7 @@ class BookmarkSidebar {
         try {
             // 检查目标是否为文件夹
             const targetBookmarks = await chrome.bookmarks.get(targetId);
-            if (!targetBookmarks[0] || targetBookmarks[0].children === undefined) {
+            if (!targetBookmarks[0] || targetBookmarks[0].children === undefined || !targetFolder) {
                 this.showMessage('只能移动到文件夹中', 'error');
                 return;
             }
