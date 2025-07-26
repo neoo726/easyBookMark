@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>检查缺失字符</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .missing { color: red; font-weight: bold; }
+        .found { color: green; }
+    </style>
+</head>
+<body>
+    <h1>检查常用书签标题中的缺失字符</h1>
+    <div id="results"></div>
+
+    <script src="pinyin.js"></script>
+    <script>
+        // 常见的书签标题示例
+        const commonTitles = [
+            "知乎", "项目管理", "技术文档", "GitHub", "百度", "腾讯", "阿里巴巴",
+            "微信", "QQ", "淘宝", "天猫", "京东", "网易", "新浪", "搜狐",
+            "豆瓣", "简书", "掘金", "CSDN", "博客园", "Stack Overflow",
+            "MDN", "Vue.js", "React", "Angular", "Node.js", "Python",
+            "Java", "JavaScript", "TypeScript", "HTML", "CSS",
+            "监控组知识库", "数据分析报告", "用户指南手册", "培训资料",
+            "工作流程", "质量控制", "安全防护", "系统维护", "代码审查"
+        ];
+        
+        const missingChars = new Set();
+        const results = document.getElementById('results');
+        
+        commonTitles.forEach(title => {
+            const div = document.createElement('div');
+            div.innerHTML = `<h3>"${title}"</h3>`;
+            
+            for (let char of title) {
+                if (/[\u4e00-\u9fff]/.test(char)) { // 只检查中文字符
+                    const pinyin = PinyinHelper.getPinyin(char);
+                    const isFound = pinyin !== char.toLowerCase();
+                    
+                    if (!isFound) {
+                        missingChars.add(char);
+                    }
+                    
+                    const span = document.createElement('span');
+                    span.className = isFound ? 'found' : 'missing';
+                    span.textContent = `${char}(${pinyin}) `;
+                    div.appendChild(span);
+                }
+            }
+            
+            results.appendChild(div);
+        });
+        
+        // 显示所有缺失的字符
+        if (missingChars.size > 0) {
+            const missingDiv = document.createElement('div');
+            missingDiv.innerHTML = `<h2>缺失的字符 (${missingChars.size}个):</h2>`;
+            missingDiv.innerHTML += `<p class="missing">${Array.from(missingChars).join(', ')}</p>`;
+            results.insertBefore(missingDiv, results.firstChild);
+        }
+    </script>
+</body>
+</html>

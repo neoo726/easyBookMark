@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyBookmark 功能测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+        }
+        .test-title {
+            font-weight: bold;
+            color: #0078d4;
+            margin-bottom: 10px;
+        }
+        .test-case {
+            margin: 10px 0;
+            padding: 8px;
+            background: #f9fafb;
+            border-radius: 4px;
+        }
+        .expected {
+            color: #059669;
+            font-style: italic;
+        }
+        .input-demo {
+            background: #fff;
+            border: 1px solid #d1d5db;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.pass { background: #dcfce7; color: #166534; }
+        .status.fail { background: #fef2f2; color: #dc2626; }
+        .status.pending { background: #fef3c7; color: #92400e; }
+    </style>
+</head>
+<body>
+    <h1>EasyBookmark 功能测试清单</h1>
+    
+    <div class="test-section">
+        <div class="test-title">1. 基础安装测试</div>
+        <div class="test-case">
+            <strong>测试项：</strong>插件成功加载到Edge浏览器<br>
+            <strong>操作：</strong>在 edge://extensions/ 中加载插件<br>
+            <span class="expected">预期：插件出现在扩展列表中，无错误提示</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">2. 侧边栏显示测试</div>
+        <div class="test-case">
+            <strong>测试项：</strong>侧边栏正确显示<br>
+            <strong>操作：</strong>点击插件图标或启用侧边栏<br>
+            <span class="expected">预期：左侧显示书签侧边栏，浅色模式，搜索框自动聚焦</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">3. 书签树展示测试</div>
+        <div class="test-case">
+            <strong>测试项：</strong>书签树正确渲染<br>
+            <strong>操作：</strong>查看侧边栏中的书签结构<br>
+            <span class="expected">预期：显示所有书签文件夹和链接，保持原生层级结构</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+        <div class="test-case">
+            <strong>测试项：</strong>文件夹展开/折叠<br>
+            <strong>操作：</strong>点击文件夹图标<br>
+            <span class="expected">预期：文件夹可以展开和折叠，有平滑动画</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">4. 搜索功能测试</div>
+        <div class="test-case">
+            <strong>测试项：</strong>英文关键词搜索<br>
+            <strong>操作：</strong><span class="input-demo">github</span><br>
+            <span class="expected">预期：匹配包含"github"的书签</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+        <div class="test-case">
+            <strong>测试项：</strong>中文关键词搜索<br>
+            <strong>操作：</strong><span class="input-demo">知乎</span><br>
+            <span class="expected">预期：匹配包含"知乎"的书签</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+        <div class="test-case">
+            <strong>测试项：</strong>拼音全拼搜索<br>
+            <strong>操作：</strong><span class="input-demo">zhihu</span><br>
+            <span class="expected">预期：匹配"知乎"相关书签</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+        <div class="test-case">
+            <strong>测试项：</strong>拼音首字母搜索<br>
+            <strong>操作：</strong><span class="input-demo">zh</span><br>
+            <span class="expected">预期：匹配"知乎"等拼音首字母为zh的书签</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+        <div class="test-case">
+            <strong>测试项：</strong>多关键词搜索<br>
+            <strong>操作：</strong><span class="input-demo">bai du</span><br>
+            <span class="expected">预期：匹配包含"百度"的书签</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">5. 验收标准测试</div>
+        <div class="test-case">
+            <strong>测试项：</strong>git → GitHub 匹配<br>
+            <strong>操作：</strong><span class="input-demo">git</span><br>
+            <span class="expected">预期：能匹配到"GitHub"（拼音首字母ght）</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+        <div class="test-case">
+            <strong>测试项：</strong>wang → 网易云音乐 匹配<br>
+            <strong>操作：</strong><span class="input-demo">wang</span><br>
+            <span class="expected">预期：能匹配到"网易云音乐"（拼音全拼）</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">6. 键盘操作测试</div>
+        <div class="test-case">
+            <strong>测试项：</strong>搜索框自动聚焦<br>
+            <strong>操作：</strong>打开侧边栏<br>
+            <span class="expected">预期：搜索框自动获得焦点，可直接输入</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+        <div class="test-case">
+            <strong>测试项：</strong>↑/↓ 键选择<br>
+            <strong>操作：</strong>搜索后使用方向键<br>
+            <span class="expected">预期：可以用↑/↓键在搜索结果中导航</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+        <div class="test-case">
+            <strong>测试项：</strong>回车键打开<br>
+            <strong>操作：</strong>选中结果后按回车<br>
+            <span class="expected">预期：在新标签页中打开选中的书签</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+        <div class="test-case">
+            <strong>测试项：</strong>Esc 键清空<br>
+            <strong>操作：</strong>搜索状态下按Esc<br>
+            <span class="expected">预期：清空搜索框，显示完整书签树</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">7. 交互体验测试</div>
+        <div class="test-case">
+            <strong>测试项：</strong>实时搜索<br>
+            <strong>操作：</strong>输入搜索关键词<br>
+            <span class="expected">预期：输入时立即过滤显示结果</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+        <div class="test-case">
+            <strong>测试项：</strong>搜索高亮<br>
+            <strong>操作：</strong>搜索包含关键词的书签<br>
+            <span class="expected">预期：匹配的关键词在结果中高亮显示</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+        <div class="test-case">
+            <strong>测试项：</strong>无结果提示<br>
+            <strong>操作：</strong>搜索不存在的内容<br>
+            <span class="expected">预期：显示"未找到匹配的书签"提示</span><br>
+            <strong>状态：</strong><span class="status pending">待测试</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">测试说明</div>
+        <p>1. 请按照上述测试用例逐一验证功能</p>
+        <p>2. 测试过程中如发现问题，请记录具体的错误信息</p>
+        <p>3. 可以在浏览器开发者工具中查看控制台输出</p>
+        <p>4. 测试完成后，请更新各测试项的状态</p>
+    </div>
+
+    <script>
+        // 简单的测试状态切换功能
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('status')) {
+                const status = e.target;
+                if (status.classList.contains('pending')) {
+                    status.className = 'status pass';
+                    status.textContent = '通过';
+                } else if (status.classList.contains('pass')) {
+                    status.className = 'status fail';
+                    status.textContent = '失败';
+                } else {
+                    status.className = 'status pending';
+                    status.textContent = '待测试';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

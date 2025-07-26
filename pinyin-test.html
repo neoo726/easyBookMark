@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼音搜索功能测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-case {
+            margin: 15px 0;
+            padding: 15px;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            background: #f9fafb;
+        }
+        .test-input {
+            font-weight: bold;
+            color: #0078d4;
+        }
+        .test-text {
+            font-weight: bold;
+            color: #333;
+        }
+        .result {
+            margin-top: 8px;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .pass {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .fail {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        .details {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        .interactive-test {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #0078d4;
+            border-radius: 8px;
+            background: #f0f8ff;
+        }
+        .interactive-test input {
+            width: 200px;
+            padding: 8px;
+            margin: 0 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+        }
+        .interactive-test button {
+            padding: 8px 16px;
+            background: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>拼音搜索功能测试</h1>
+    
+    <div class="interactive-test">
+        <h3>交互式测试</h3>
+        <div>
+            <label>书签标题：</label>
+            <input type="text" id="testText" value="监控组知识库" placeholder="输入书签标题">
+            <label>搜索词：</label>
+            <input type="text" id="searchTerm" value="jkz" placeholder="支持：jkz、监控 知识、jiankong等">
+            <button onclick="testMatch()">测试匹配</button>
+        </div>
+        <div style="margin-top: 10px; font-size: 12px; color: #666;">
+            <strong>测试示例：</strong>
+            <button onclick="setTest('监控组知识库', 'jkz')" style="margin: 2px; padding: 2px 6px; font-size: 11px;">jkz</button>
+            <button onclick="setTest('监控组知识库', '监控 知识')" style="margin: 2px; padding: 2px 6px; font-size: 11px;">监控 知识</button>
+            <button onclick="setTest('技术文档管理', 'jswdgl')" style="margin: 2px; padding: 2px 6px; font-size: 11px;">jswdgl</button>
+            <button onclick="setTest('GitHub技术文档', 'git 技术')" style="margin: 2px; padding: 2px 6px; font-size: 11px;">git 技术</button>
+        </div>
+        <div id="interactiveResult" class="result" style="display: none;"></div>
+    </div>
+
+    <h2>预设测试用例</h2>
+    <div id="testResults"></div>
+
+    <script src="pinyin.js"></script>
+    <script>
+        // 测试用例
+        const testCases = [
+            // 基本拼音首字母测试
+            { text: "监控组知识库", search: "jkz", expected: true, desc: "监控组知识库 → jkz (jiankongzu zhishiku)" },
+            { text: "监控组知识库", search: "jkzsk", expected: true, desc: "监控组知识库 → jkzsk (jiankongzu zhishiku)" },
+            { text: "监控组知识库", search: "jzk", expected: true, desc: "监控组知识库 → jzk (jian zu ku)" },
+
+            // 多关键词测试（空格分隔）
+            { text: "监控组知识库", search: "监控 知识", expected: true, desc: "监控组知识库 → '监控 知识' (多关键词)" },
+            { text: "技术文档管理系统", search: "技术 管理", expected: true, desc: "技术文档管理系统 → '技术 管理' (多关键词)" },
+            { text: "GitHub技术文档", search: "git 技术", expected: true, desc: "GitHub技术文档 → 'git 技术' (中英混合)" },
+            { text: "Vue.js学习笔记", search: "vue 学习", expected: true, desc: "Vue.js学习笔记 → 'vue 学习' (中英混合)" },
+
+            // 拼音多关键词测试
+            { text: "监控组知识库", search: "jk zs", expected: true, desc: "监控组知识库 → 'jk zs' (拼音多关键词)" },
+            { text: "技术文档管理", search: "js wd", expected: true, desc: "技术文档管理 → 'js wd' (拼音多关键词)" },
+            { text: "数据分析报告", search: "sj bg", expected: true, desc: "数据分析报告 → 'sj bg' (拼音多关键词)" },
+
+            // 模糊匹配测试
+            { text: "监控组知识库", search: "监控", expected: true, desc: "监控组知识库 → '监控' (模糊匹配)" },
+            { text: "技术文档管理", search: "文档", expected: true, desc: "技术文档管理 → '文档' (模糊匹配)" },
+            { text: "GitHub技术文档", search: "hub", expected: true, desc: "GitHub技术文档 → 'hub' (英文模糊)" },
+
+            // 拼音全拼测试
+            { text: "知乎", search: "zhihu", expected: true, desc: "知乎 → zhihu (拼音全拼)" },
+            { text: "百度", search: "baidu", expected: true, desc: "百度 → baidu (拼音全拼)" },
+            { text: "监控组", search: "jiankongzu", expected: true, desc: "监控组 → jiankongzu (拼音全拼)" },
+
+            // 其他常见词汇测试
+            { text: "技术文档管理", search: "jswdgl", expected: true, desc: "技术文档管理 → jswdgl" },
+            { text: "数据分析报告", search: "sjfxbg", expected: true, desc: "数据分析报告 → sjfxbg" },
+            { text: "项目管理系统", search: "xmglxt", expected: true, desc: "项目管理系统 → xmglxt" },
+            { text: "用户指南手册", search: "yhzn", expected: true, desc: "用户指南手册 → yhzn" },
+
+            // 部分匹配测试
+            { text: "监控组知识库", search: "jk", expected: true, desc: "监控组知识库 → jk (部分匹配)" },
+            { text: "监控组知识库", search: "zsk", expected: true, desc: "监控组知识库 → zsk (部分匹配)" },
+
+            // 网站名称测试
+            { text: "知乎", search: "zh", expected: true, desc: "知乎 → zh" },
+            { text: "百度", search: "bd", expected: true, desc: "百度 → bd" },
+            { text: "GitHub", search: "git", expected: true, desc: "GitHub → git (英文匹配)" },
+
+            // 复杂多关键词测试
+            { text: "监控组知识库管理系统", search: "jk zs gl", expected: true, desc: "监控组知识库管理系统 → 'jk zs gl' (复杂多关键词)" },
+            { text: "Vue.js前端开发文档", search: "vue 前端 文档", expected: true, desc: "Vue.js前端开发文档 → 'vue 前端 文档'" },
+
+            // 不匹配的情况
+            { text: "监控组知识库", search: "abc", expected: false, desc: "监控组知识库 → abc (不匹配)" },
+            { text: "技术文档", search: "xyz", expected: false, desc: "技术文档 → xyz (不匹配)" },
+            { text: "监控组知识库", search: "监控 xyz", expected: false, desc: "监控组知识库 → '监控 xyz' (部分不匹配)" },
+        ];
+
+        function runTests() {
+            const resultsContainer = document.getElementById('testResults');
+            let passCount = 0;
+            let totalCount = testCases.length;
+
+            testCases.forEach((testCase, index) => {
+                const result = PinyinHelper.matches(testCase.text, testCase.search);
+                const passed = result === testCase.expected;
+                
+                if (passed) passCount++;
+
+                const testDiv = document.createElement('div');
+                testDiv.className = 'test-case';
+                
+                testDiv.innerHTML = `
+                    <div><span class="test-text">"${testCase.text}"</span> 搜索 <span class="test-input">"${testCase.search}"</span></div>
+                    <div class="result ${passed ? 'pass' : 'fail'}">
+                        ${passed ? '✅ 通过' : '❌ 失败'} - 预期: ${testCase.expected}, 实际: ${result}
+                    </div>
+                    <div class="details">${testCase.desc}</div>
+                `;
+                
+                resultsContainer.appendChild(testDiv);
+            });
+
+            // 添加总结
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = 'test-case';
+            summaryDiv.innerHTML = `
+                <h3>测试总结</h3>
+                <div class="result ${passCount === totalCount ? 'pass' : 'fail'}">
+                    通过: ${passCount}/${totalCount} (${Math.round(passCount/totalCount*100)}%)
+                </div>
+            `;
+            resultsContainer.appendChild(summaryDiv);
+        }
+
+        function testMatch() {
+            const text = document.getElementById('testText').value;
+            const search = document.getElementById('searchTerm').value;
+            const resultDiv = document.getElementById('interactiveResult');
+
+            if (!text || !search) {
+                resultDiv.style.display = 'none';
+                return;
+            }
+
+            const result = PinyinHelper.matches(text, search);
+            const fullPinyin = PinyinHelper.getFullPinyin(text);
+            const initials = PinyinHelper.getFirstLetters(text);
+            const keywords = PinyinHelper.parseKeywords(search);
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = `result ${result ? 'pass' : 'fail'}`;
+            resultDiv.innerHTML = `
+                <div><strong>${result ? '✅ 匹配成功' : '❌ 不匹配'}</strong></div>
+                <div class="details">
+                    <div>原文: ${text}</div>
+                    <div>全拼: ${fullPinyin}</div>
+                    <div>首字母: ${initials}</div>
+                    <div>搜索词: ${search}</div>
+                    <div>关键词: [${keywords.join(', ')}]</div>
+                </div>
+            `;
+        }
+
+        function setTest(text, search) {
+            document.getElementById('testText').value = text;
+            document.getElementById('searchTerm').value = search;
+            testMatch();
+        }
+
+        // 页面加载完成后运行测试
+        document.addEventListener('DOMContentLoaded', () => {
+            runTests();
+        });
+    </script>
+</body>
+</html>

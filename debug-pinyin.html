@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼音映射调试</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .missing { background: #ffebee; }
+        .found { background: #e8f5e8; }
+    </style>
+</head>
+<body>
+    <h1>拼音映射调试</h1>
+    <div id="results"></div>
+
+    <script src="pinyin.js"></script>
+    <script>
+        function debugPinyin() {
+            const testTexts = ["项目管理", "知乎", "监控组"];
+            const results = document.getElementById('results');
+            
+            testTexts.forEach(text => {
+                const div = document.createElement('div');
+                div.className = 'test';
+                
+                let html = `<h3>测试文本: "${text}"</h3>`;
+                
+                // 逐字分析
+                for (let char of text) {
+                    const pinyin = PinyinHelper.getPinyin(char);
+                    const isFound = pinyin !== char.toLowerCase();
+                    
+                    html += `<div class="${isFound ? 'found' : 'missing'}">
+                        字符: "${char}" → 拼音: "${pinyin}" ${isFound ? '✅' : '❌ 缺失'}
+                    </div>`;
+                }
+                
+                // 整体测试
+                const fullPinyin = PinyinHelper.getFullPinyin(text);
+                const initials = PinyinHelper.getFirstLetters(text);
+                
+                html += `<div>
+                    <strong>完整拼音:</strong> ${fullPinyin}<br>
+                    <strong>首字母:</strong> ${initials}
+                </div>`;
+                
+                // 搜索测试
+                const searchTests = [
+                    text.split('').map(c => PinyinHelper.getPinyin(c).charAt(0)).join(''),
+                    fullPinyin
+                ];
+                
+                searchTests.forEach(search => {
+                    const matches = PinyinHelper.matches(text, search);
+                    html += `<div>搜索 "${search}" → ${matches ? '✅ 匹配' : '❌ 不匹配'}</div>`;
+                });
+                
+                div.innerHTML = html;
+                results.appendChild(div);
+            });
+        }
+        
+        debugPinyin();
+    </script>
+</body>
+</html>

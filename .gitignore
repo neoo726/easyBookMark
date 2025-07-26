@@ -1,0 +1,33 @@
+# 测试文件
+test-*.html
+verify-*.html
+
+# 开发工具文件
+.vscode/
+.idea/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.temp
+
+# 日志文件
+*.log
+
+# 压缩包
+*.zip
+*.rar
+*.7z
+
+# Node.js (如果将来使用)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 构建输出
+dist/
+build/
