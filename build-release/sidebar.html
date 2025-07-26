@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyBookmark</title>
+    <link rel="icon" type="image/png" href="icons/icon16.png">
+    <link rel="stylesheet" href="sidebar.css">
+</head>
+<body>
+    <div class="sidebar-container">
+        <!-- 标题栏已隐藏 -->
+
+        <!-- 搜索区域 -->
+        <div class="search-section">
+            <div class="search-box">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="智能搜索：拼音首字母、多关键词、模糊匹配"
+                    autocomplete="off"
+                    spellcheck="false"
+                >
+                <div class="search-icon">🔍</div>
+            </div>
+            <div class="search-tips" id="searchTips">
+                支持智能搜索：拼音首字母、多关键词、模糊匹配
+            </div>
+        </div>
+
+        <!-- 书签树区域 -->
+        <div class="bookmarks-section">
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <span>加载书签中...</span>
+            </div>
+            <div class="bookmarks-tree" id="bookmarksTree"></div>
+            <div class="no-results" id="noResults" style="display: none;">
+                <div class="no-results-icon">📭</div>
+                <div class="no-results-text">未找到匹配的书签</div>
+                <div class="no-results-tip">尝试使用不同的关键词或拼音</div>
+            </div>
+        </div>
+
+        <!-- 快捷键提示 -->
+        <div class="shortcuts-info">
+            <div class="shortcut-item">
+                <span class="key">↑↓</span> 选择
+            </div>
+            <div class="shortcut-item">
+                <span class="key">Enter</span> 打开
+            </div>
+            <div class="shortcut-item">
+                <span class="key">Esc</span> 清空
+            </div>
+        </div>
+    </div>
+
+    <!-- 脚本引入 -->
+    <script src="pinyin.js"></script>
+    <script src="sidebar.js"></script>
+</body>
+</html>

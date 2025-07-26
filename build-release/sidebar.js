@@ -48,11 +48,6 @@ class BookmarkSidebar {
             this.handleClick(e);
         });
 
-        // 右键菜单事件
-        this.bookmarksTree.addEventListener('contextmenu', (e) => {
-            this.handleContextMenu(e);
-        });
-
         // 关闭按钮事件已隐藏
         /*
         if (this.closeButton) {
@@ -133,11 +128,6 @@ class BookmarkSidebar {
                     <span class="folder-toggle">▶</span>
                     <span class="folder-icon">📁</span>
                     <span class="folder-title">${this.escapeHtml(node.title)}</span>
-                    <div class="bookmark-actions">
-                        <button class="action-btn edit-btn" title="编辑文件夹" data-action="edit" data-id="${node.id}">✏️</button>
-                        <button class="action-btn delete-btn" title="删除文件夹" data-action="delete" data-id="${node.id}">🗑️</button>
-                        <button class="action-btn add-btn" title="添加书签" data-action="add" data-id="${node.id}">➕</button>
-                    </div>
                 </div>
                 <div class="folder-content"></div>
             `;
@@ -154,18 +144,11 @@ class BookmarkSidebar {
             // 书签链接
             const faviconUrl = this.getFaviconUrl(node.url);
             div.innerHTML = `
-                <div class="bookmark-container" data-id="${node.id}">
-                    <a class="bookmark-link" href="${node.url}" data-id="${node.id}" data-url="${node.url}">
-                        <span class="bookmark-icon" style="background-image: url('${faviconUrl}')"></span>
-                        <span class="bookmark-title">${this.escapeHtml(node.title)}</span>
-                        <span class="bookmark-url">${this.getDomain(node.url)}</span>
-                    </a>
-                    <div class="bookmark-actions">
-                        <button class="action-btn edit-btn" title="编辑书签" data-action="edit" data-id="${node.id}">✏️</button>
-                        <button class="action-btn delete-btn" title="删除书签" data-action="delete" data-id="${node.id}">🗑️</button>
-                        <button class="action-btn move-btn" title="移动书签" data-action="move" data-id="${node.id}">📁</button>
-                    </div>
-                </div>
+                <a class="bookmark-link" href="${node.url}" data-id="${node.id}" data-url="${node.url}">
+                    <span class="bookmark-icon" style="background-image: url('${faviconUrl}')"></span>
+                    <span class="bookmark-title">${this.escapeHtml(node.title)}</span>
+                    <span class="bookmark-url">${this.getDomain(node.url)}</span>
+                </a>
             `;
         }
 
@@ -479,31 +462,18 @@ class BookmarkSidebar {
 
     // 处理点击事件
     handleClick(e) {
-        // 处理操作按钮点击
-        if (e.target.closest('.action-btn')) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const btn = e.target.closest('.action-btn');
-            const action = btn.dataset.action;
-            const id = btn.dataset.id;
-
-            this.handleBookmarkAction(action, id);
-            return;
-        }
-
+        e.preventDefault();
+        
         // 文件夹切换
         if (e.target.closest('.folder-header')) {
-            e.preventDefault();
             const folderHeader = e.target.closest('.folder-header');
             const folder = folderHeader.closest('.folder');
             this.toggleFolder(folder);
             return;
         }
-
+        
         // 书签点击
         if (e.target.closest('.bookmark-link')) {
-            e.preventDefault();
             const link = e.target.closest('.bookmark-link');
             const url = link.dataset.url;
             if (url) {
@@ -629,235 +599,6 @@ class BookmarkSidebar {
                 hint.parentNode.removeChild(hint);
             }
         }, 2000);
-    }
-
-    // 处理书签操作
-    async handleBookmarkAction(action, id) {
-        try {
-            switch (action) {
-                case 'edit':
-                    await this.editBookmark(id);
-                    break;
-                case 'delete':
-                    await this.deleteBookmark(id);
-                    break;
-                case 'move':
-                    await this.moveBookmark(id);
-                    break;
-                case 'add':
-                    await this.addBookmark(id);
-                    break;
-            }
-        } catch (error) {
-            console.error('书签操作失败:', error);
-            this.showMessage('操作失败: ' + error.message, 'error');
-        }
-    }
-
-    // 编辑书签
-    async editBookmark(id) {
-        const bookmark = await chrome.bookmarks.get(id);
-        if (!bookmark || bookmark.length === 0) return;
-
-        const item = bookmark[0];
-        const isFolder = !item.url;
-
-        const title = prompt(
-            isFolder ? '编辑文件夹名称:' : '编辑书签标题:',
-            item.title
-        );
-
-        if (title === null || title.trim() === '') return;
-
-        const updateData = { title: title.trim() };
-
-        if (!isFolder) {
-            const url = prompt('编辑书签URL:', item.url);
-            if (url === null || url.trim() === '') return;
-            updateData.url = url.trim();
-        }
-
-        await chrome.bookmarks.update(id, updateData);
-        await this.loadBookmarks();
-        this.showMessage(isFolder ? '文件夹已更新' : '书签已更新', 'success');
-    }
-
-    // 删除书签
-    async deleteBookmark(id) {
-        const bookmark = await chrome.bookmarks.get(id);
-        if (!bookmark || bookmark.length === 0) return;
-
-        const item = bookmark[0];
-        const isFolder = !item.url;
-
-        const confirmMsg = isFolder
-            ? `确定要删除文件夹 "${item.title}" 及其所有内容吗？`
-            : `确定要删除书签 "${item.title}" 吗？`;
-
-        if (!confirm(confirmMsg)) return;
-
-        if (isFolder) {
-            await chrome.bookmarks.removeTree(id);
-        } else {
-            await chrome.bookmarks.remove(id);
-        }
-
-        await this.loadBookmarks();
-        this.showMessage(isFolder ? '文件夹已删除' : '书签已删除', 'success');
-    }
-
-    // 移动书签
-    async moveBookmark(id) {
-        const bookmark = await chrome.bookmarks.get(id);
-        if (!bookmark || bookmark.length === 0) return;
-
-        // 获取所有文件夹
-        const tree = await chrome.bookmarks.getTree();
-        const folders = this.getAllFolders(tree[0]);
-
-        // 创建文件夹选择对话框
-        this.showFolderSelector(folders, async (targetFolderId) => {
-            if (targetFolderId && targetFolderId !== bookmark[0].parentId) {
-                await chrome.bookmarks.move(id, { parentId: targetFolderId });
-                await this.loadBookmarks();
-                this.showMessage('书签已移动', 'success');
-            }
-        });
-    }
-
-    // 添加书签到文件夹
-    async addBookmark(parentId) {
-        const title = prompt('书签标题:');
-        if (!title || title.trim() === '') return;
-
-        const url = prompt('书签URL:');
-        if (!url || url.trim() === '') return;
-
-        await chrome.bookmarks.create({
-            parentId: parentId,
-            title: title.trim(),
-            url: url.trim()
-        });
-
-        await this.loadBookmarks();
-        this.showMessage('书签已添加', 'success');
-    }
-
-    // 获取所有文件夹
-    getAllFolders(node, folders = []) {
-        if (node.children) {
-            folders.push({
-                id: node.id,
-                title: node.title || '根目录',
-                level: 0
-            });
-
-            node.children.forEach(child => {
-                if (child.children) {
-                    this.getAllFolders(child, folders);
-                }
-            });
-        }
-        return folders;
-    }
-
-    // 显示文件夹选择器
-    showFolderSelector(folders, callback) {
-        // 创建模态对话框
-        const modal = document.createElement('div');
-        modal.className = 'folder-selector-modal';
-        modal.innerHTML = `
-            <div class="folder-selector-content">
-                <h3>选择目标文件夹</h3>
-                <div class="folder-list">
-                    ${folders.map(folder => `
-                        <div class="folder-option" data-id="${folder.id}">
-                            📁 ${this.escapeHtml(folder.title)}
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="folder-selector-buttons">
-                    <button class="btn-cancel">取消</button>
-                </div>
-            </div>
-        `;
-
-        // 添加事件监听
-        modal.addEventListener('click', (e) => {
-            if (e.target.classList.contains('folder-option')) {
-                const folderId = e.target.dataset.id;
-                callback(folderId);
-                document.body.removeChild(modal);
-            } else if (e.target.classList.contains('btn-cancel') || e.target === modal) {
-                document.body.removeChild(modal);
-            }
-        });
-
-        document.body.appendChild(modal);
-    }
-
-    // 显示消息提示
-    showMessage(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.textContent = message;
-
-        document.body.appendChild(toast);
-
-        // 自动移除
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 3000);
-    }
-
-    // 处理右键菜单
-    handleContextMenu(e) {
-        e.preventDefault();
-
-        const bookmarkItem = e.target.closest('.bookmark-item');
-        if (!bookmarkItem) return;
-
-        const id = bookmarkItem.dataset.id;
-        this.showContextMenu(e.clientX, e.clientY, id);
-    }
-
-    // 显示右键菜单
-    showContextMenu(x, y, id) {
-        // 移除已存在的菜单
-        const existingMenu = document.querySelector('.context-menu');
-        if (existingMenu) {
-            existingMenu.remove();
-        }
-
-        const menu = document.createElement('div');
-        menu.className = 'context-menu';
-        menu.style.left = x + 'px';
-        menu.style.top = y + 'px';
-
-        menu.innerHTML = `
-            <div class="context-menu-item" data-action="edit" data-id="${id}">✏️ 编辑</div>
-            <div class="context-menu-item" data-action="delete" data-id="${id}">🗑️ 删除</div>
-            <div class="context-menu-item" data-action="move" data-id="${id}">📁 移动</div>
-        `;
-
-        menu.addEventListener('click', (e) => {
-            const item = e.target.closest('.context-menu-item');
-            if (item) {
-                const action = item.dataset.action;
-                const itemId = item.dataset.id;
-                this.handleBookmarkAction(action, itemId);
-            }
-            menu.remove();
-        });
-
-        // 点击其他地方关闭菜单
-        document.addEventListener('click', () => {
-            menu.remove();
-        }, { once: true });
-
-        document.body.appendChild(menu);
     }
 }
 
