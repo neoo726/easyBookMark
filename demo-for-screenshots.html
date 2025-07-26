@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyBookmark 功能演示</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .demo-section {
+            background: white;
+            margin: 20px 0;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+        .demo-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .feature-card {
+            padding: 20px;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            background: #fafbfc;
+        }
+        .feature-card h3 {
+            color: #0078d4;
+            margin-bottom: 10px;
+        }
+        .search-demo {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+        .search-example {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        .search-input {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin-right: 10px;
+        }
+        .search-result {
+            background: #fff3cd;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .highlight {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 0 2px;
+            border-radius: 2px;
+            font-weight: bold;
+        }
+        .keyboard-shortcuts {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .shortcut {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        .key {
+            background: #495057;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .sidebar-preview {
+            width: 300px;
+            height: 500px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+            margin: 20px auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .preview-header {
+            padding: 12px 16px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .preview-search {
+            padding: 12px;
+            border-bottom: 1px solid #e1e5e9;
+        }
+        .preview-search input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .preview-bookmarks {
+            padding: 12px;
+        }
+        .preview-bookmark {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            margin: 4px 0;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .preview-bookmark:hover {
+            background: #f3f4f6;
+        }
+        .preview-bookmark.selected {
+            background: #e3f2fd;
+        }
+        .preview-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-section">
+            <div class="demo-title">
+                🔖 EasyBookmark - 智能书签侧边栏
+            </div>
+            <p style="font-size: 18px; color: #666; line-height: 1.6;">
+                一个功能强大的浏览器扩展，提供智能书签管理和搜索功能，支持拼音搜索、快捷键操作和实时高亮。
+            </p>
+        </div>
+
+        <div class="demo-section">
+            <div class="demo-title">
+                🔍 智能搜索功能
+            </div>
+            <div class="search-demo">
+                <h4>支持多种搜索方式：</h4>
+                <div class="search-example">
+                    <span class="search-input">zhihu</span>
+                    <span>→</span>
+                    <span class="search-result"><span class="highlight">知乎</span></span>
+                    <span style="margin-left: 10px; color: #666;">(拼音全拼)</span>
+                </div>
+                <div class="search-example">
+                    <span class="search-input">zh</span>
+                    <span>→</span>
+                    <span class="search-result"><span class="highlight">知</span>乎</span>
+                    <span style="margin-left: 10px; color: #666;">(拼音首字母)</span>
+                </div>
+                <div class="search-example">
+                    <span class="search-input">jkz</span>
+                    <span>→</span>
+                    <span class="search-result"><span class="highlight">监控组</span>知识库</span>
+                    <span style="margin-left: 10px; color: #666;">(多字首字母)</span>
+                </div>
+                <div class="search-example">
+                    <span class="search-input">git 技术</span>
+                    <span>→</span>
+                    <span class="search-result"><span class="highlight">Git</span><span class="highlight">技术</span>文档</span>
+                    <span style="margin-left: 10px; color: #666;">(多关键词)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <div class="demo-title">
+                ⌨️ 快捷键操作
+            </div>
+            <div class="keyboard-shortcuts">
+                <div class="shortcut">
+                    <span class="key">↑↓</span>
+                    <span>选择书签</span>
+                </div>
+                <div class="shortcut">
+                    <span class="key">Enter</span>
+                    <span>打开书签</span>
+                </div>
+                <div class="shortcut">
+                    <span class="key">Esc</span>
+                    <span>清空搜索</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <div class="demo-title">
+                🎨 用户界面预览
+            </div>
+            <div class="sidebar-preview">
+                <div class="preview-search">
+                    <input type="text" placeholder="智能搜索：拼音首字母、多关键词、模糊匹配" value="zhihu">
+                </div>
+                <div class="preview-bookmarks">
+                    <div class="preview-bookmark selected">
+                        <div class="preview-icon" style="background: #0084ff;"></div>
+                        <span><span class="highlight">知乎</span></span>
+                    </div>
+                    <div class="preview-bookmark">
+                        <div class="preview-icon" style="background: #ff6b35;"></div>
+                        <span>GitHub</span>
+                    </div>
+                    <div class="preview-bookmark">
+                        <div class="preview-icon" style="background: #1da1f2;"></div>
+                        <span>Twitter</span>
+                    </div>
+                    <div class="preview-bookmark">
+                        <div class="preview-icon" style="background: #ff0000;"></div>
+                        <span>YouTube</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <div class="demo-title">
+                ✨ 主要特性
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🔍 智能搜索</h3>
+                    <p>支持拼音全拼、首字母、多关键词和模糊匹配，快速找到目标书签。</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⚡ 实时高亮</h3>
+                    <p>搜索结果实时高亮显示匹配内容，包括拼音匹配的中文字符。</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⌨️ 快捷操作</h3>
+                    <p>支持键盘快捷键操作，提高使用效率，无需鼠标即可完成操作。</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🎨 简洁界面</h3>
+                    <p>清爽的侧边栏设计，显示网站图标，支持文件夹管理。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
