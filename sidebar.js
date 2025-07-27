@@ -530,7 +530,18 @@ class BookmarkSidebar {
 
     // 切换文件夹展开/折叠
     toggleFolder(folder) {
-        folder.classList.toggle('expanded');
+        const isExpanded = folder.classList.contains('expanded');
+        const toggle = folder.querySelector('.folder-toggle');
+
+        if (isExpanded) {
+            // 当前是展开状态，要折叠
+            folder.classList.remove('expanded');
+            if (toggle) toggle.textContent = '▶';
+        } else {
+            // 当前是折叠状态，要展开
+            folder.classList.add('expanded');
+            if (toggle) toggle.textContent = '▼';
+        }
     }
 
     // 打开书签
