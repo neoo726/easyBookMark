@@ -506,8 +506,12 @@ class BookmarkSidebar {
         // 文件夹切换
         if (e.target.closest('.folder-header')) {
             e.preventDefault();
+            e.stopPropagation(); // 阻止事件冒泡
+
             const folderHeader = e.target.closest('.folder-header');
             const folder = folderHeader.closest('.folder');
+
+            // 确保只切换直接点击的文件夹，不影响子文件夹
             this.toggleFolder(folder);
             return;
         }

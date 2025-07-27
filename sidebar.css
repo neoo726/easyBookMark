@@ -230,14 +230,15 @@ body {
     margin-left: 16px;
     overflow: hidden;
     transition: max-height 0.3s ease-out;
+    max-height: 0; /* 默认折叠 */
 }
 
-.folder:not(.expanded) .folder-content {
-    max-height: 0;
+.folder:not(.expanded) > .folder-content {
+    max-height: 0 !important; /* 强制折叠，使用直接子选择器 */
 }
 
-.folder.expanded .folder-content {
-    max-height: 2000px;
+.folder.expanded > .folder-content {
+    max-height: 2000px; /* 只展开直接子内容 */
 }
 
 /* 书签链接样式 */
@@ -521,12 +522,12 @@ body {
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* 确保文件夹默认折叠 */
-.folder:not(.expanded) .folder-content {
-    max-height: 0;
+/* 确保文件夹默认折叠 - 使用直接子选择器避免嵌套问题 */
+.folder:not(.expanded) > .folder-content {
+    max-height: 0 !important;
     overflow: hidden;
 }
 
-.folder.expanded .folder-content {
+.folder.expanded > .folder-content {
     max-height: 2000px;
 }
