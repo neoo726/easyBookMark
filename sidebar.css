@@ -204,12 +204,8 @@ body {
 .folder-toggle {
     margin-right: 6px;
     font-size: 12px;
-    transition: transform 0.2s;
     color: #6b7280;
-}
-
-.folder.expanded .folder-toggle {
-    transform: rotate(90deg);
+    user-select: none;
 }
 
 .folder-icon {

@@ -147,6 +147,12 @@ class BookmarkSidebar {
                 <div class="folder-content"></div>
             `;
 
+            // 确保箭头状态正确（所有文件夹默认折叠）
+            const toggle = div.querySelector('.folder-toggle');
+            if (toggle) {
+                toggle.textContent = '▶'; // 明确设置为折叠状态箭头
+            }
+
             // 递归渲染子项，传递层级信息
             const folderContent = div.querySelector('.folder-content');
             if (node.children.length > 0) {
