@@ -449,85 +449,9 @@ body {
     color: #dc2626;
 }
 
-.move-btn:hover,
-.add-btn:hover {
-    background-color: #f0fdf4;
-    color: #16a34a;
-}
 
-/* 文件夹选择器模态框 */
-.folder-selector-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
 
-.folder-selector-content {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    max-width: 400px;
-    width: 90%;
-    max-height: 500px;
-    overflow-y: auto;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-}
 
-.folder-selector-content h3 {
-    margin-bottom: 15px;
-    color: #374151;
-    font-size: 16px;
-}
-
-.folder-list {
-    max-height: 300px;
-    overflow-y: auto;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    margin-bottom: 15px;
-}
-
-.folder-option {
-    padding: 10px 12px;
-    cursor: pointer;
-    border-bottom: 1px solid #f3f4f6;
-    transition: background-color 0.15s;
-}
-
-.folder-option:hover {
-    background-color: #f9fafb;
-}
-
-.folder-option:last-child {
-    border-bottom: none;
-}
-
-.folder-selector-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-.btn-cancel {
-    padding: 8px 16px;
-    border: 1px solid #d1d5db;
-    background: white;
-    border-radius: 6px;
-    cursor: pointer;
-    color: #374151;
-    transition: background-color 0.15s;
-}
-
-.btn-cancel:hover {
-    background-color: #f9fafb;
-}
 
 /* 右键菜单 */
 .context-menu {
@@ -592,24 +516,9 @@ body {
     }
 }
 
-/* 拖拽样式 */
+/* 书签项样式 */
 .bookmark-item {
     transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.bookmark-item.dragging {
-    opacity: 0.5;
-    transform: scale(0.95);
-}
-
-.bookmark-item.drag-over {
-    background-color: #e3f2fd;
-    border: 2px dashed #1976d2;
-    border-radius: 4px;
-}
-
-.bookmark-item.drag-over .folder-header {
-    background-color: transparent;
 }
 
 /* 确保文件夹默认折叠 */

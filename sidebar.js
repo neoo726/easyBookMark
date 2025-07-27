@@ -53,22 +53,7 @@ class BookmarkSidebar {
             this.handleContextMenu(e);
         });
 
-        // 拖拽事件
-        this.bookmarksTree.addEventListener('dragstart', (e) => {
-            this.handleDragStart(e);
-        });
 
-        this.bookmarksTree.addEventListener('dragover', (e) => {
-            this.handleDragOver(e);
-        });
-
-        this.bookmarksTree.addEventListener('drop', (e) => {
-            this.handleDrop(e);
-        });
-
-        this.bookmarksTree.addEventListener('dragend', (e) => {
-            this.handleDragEnd(e);
-        });
 
         // 关闭按钮事件已隐藏
         /*
@@ -141,17 +126,17 @@ class BookmarkSidebar {
         const div = document.createElement('div');
         div.className = 'bookmark-item';
         div.dataset.id = node.id;
-        div.draggable = true;
 
         if (node.children) {
             // 文件夹
             div.className += ' folder';
 
             // 只有一级文件夹默认展开，其他级别默认折叠
-            if (level > 0) {
-                // 二级及以上文件夹默认折叠
-                div.classList.remove('expanded');
+            if (level === 0) {
+                // 一级文件夹默认展开
+                div.classList.add('expanded');
             }
+            // 二级及以上文件夹默认折叠（不添加expanded类）
 
             div.innerHTML = `
                 <div class="folder-header" data-id="${node.id}">
@@ -161,7 +146,6 @@ class BookmarkSidebar {
                     <div class="bookmark-actions">
                         <button class="action-btn edit-btn" title="编辑文件夹" data-action="edit" data-id="${node.id}">✏️</button>
                         <button class="action-btn delete-btn" title="删除文件夹" data-action="delete" data-id="${node.id}">🗑️</button>
-                        <button class="action-btn add-btn" title="添加书签" data-action="add" data-id="${node.id}">➕</button>
                     </div>
                 </div>
                 <div class="folder-content"></div>
@@ -188,7 +172,6 @@ class BookmarkSidebar {
                     <div class="bookmark-actions">
                         <button class="action-btn edit-btn" title="编辑书签" data-action="edit" data-id="${node.id}">✏️</button>
                         <button class="action-btn delete-btn" title="删除书签" data-action="delete" data-id="${node.id}">🗑️</button>
-                        <button class="action-btn move-btn" title="移动书签" data-action="move" data-id="${node.id}">📁</button>
                     </div>
                 </div>
             `;
@@ -666,12 +649,6 @@ class BookmarkSidebar {
                 case 'delete':
                     await this.deleteBookmark(id);
                     break;
-                case 'move':
-                    await this.moveBookmark(id);
-                    break;
-                case 'add':
-                    await this.addBookmark(id);
-                    break;
             }
         } catch (error) {
             console.error('书签操作失败:', error);
@@ -732,95 +709,7 @@ class BookmarkSidebar {
         this.showMessage(isFolder ? '文件夹已删除' : '书签已删除', 'success');
     }
 
-    // 移动书签
-    async moveBookmark(id) {
-        const bookmark = await chrome.bookmarks.get(id);
-        if (!bookmark || bookmark.length === 0) return;
 
-        // 获取所有文件夹
-        const tree = await chrome.bookmarks.getTree();
-        const folders = this.getAllFolders(tree[0]);
-
-        // 创建文件夹选择对话框
-        this.showFolderSelector(folders, async (targetFolderId) => {
-            if (targetFolderId && targetFolderId !== bookmark[0].parentId) {
-                await chrome.bookmarks.move(id, { parentId: targetFolderId });
-                await this.loadBookmarks();
-                this.showMessage('书签已移动', 'success');
-            }
-        });
-    }
-
-    // 添加书签到文件夹
-    async addBookmark(parentId) {
-        const title = prompt('书签标题:');
-        if (!title || title.trim() === '') return;
-
-        const url = prompt('书签URL:');
-        if (!url || url.trim() === '') return;
-
-        await chrome.bookmarks.create({
-            parentId: parentId,
-            title: title.trim(),
-            url: url.trim()
-        });
-
-        await this.loadBookmarks();
-        this.showMessage('书签已添加', 'success');
-    }
-
-    // 获取所有文件夹
-    getAllFolders(node, folders = []) {
-        if (node.children) {
-            folders.push({
-                id: node.id,
-                title: node.title || '根目录',
-                level: 0
-            });
-
-            node.children.forEach(child => {
-                if (child.children) {
-                    this.getAllFolders(child, folders);
-                }
-            });
-        }
-        return folders;
-    }
-
-    // 显示文件夹选择器
-    showFolderSelector(folders, callback) {
-        // 创建模态对话框
-        const modal = document.createElement('div');
-        modal.className = 'folder-selector-modal';
-        modal.innerHTML = `
-            <div class="folder-selector-content">
-                <h3>选择目标文件夹</h3>
-                <div class="folder-list">
-                    ${folders.map(folder => `
-                        <div class="folder-option" data-id="${folder.id}">
-                            📁 ${this.escapeHtml(folder.title)}
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="folder-selector-buttons">
-                    <button class="btn-cancel">取消</button>
-                </div>
-            </div>
-        `;
-
-        // 添加事件监听
-        modal.addEventListener('click', (e) => {
-            if (e.target.classList.contains('folder-option')) {
-                const folderId = e.target.dataset.id;
-                callback(folderId);
-                document.body.removeChild(modal);
-            } else if (e.target.classList.contains('btn-cancel') || e.target === modal) {
-                document.body.removeChild(modal);
-            }
-        });
-
-        document.body.appendChild(modal);
-    }
 
     // 显示消息提示
     showMessage(message, type = 'info') {
@@ -865,7 +754,6 @@ class BookmarkSidebar {
         menu.innerHTML = `
             <div class="context-menu-item" data-action="edit" data-id="${id}">✏️ 编辑</div>
             <div class="context-menu-item" data-action="delete" data-id="${id}">🗑️ 删除</div>
-            <div class="context-menu-item" data-action="move" data-id="${id}">📁 移动</div>
         `;
 
         menu.addEventListener('click', (e) => {
@@ -886,100 +774,9 @@ class BookmarkSidebar {
         document.body.appendChild(menu);
     }
 
-    // 拖拽开始
-    handleDragStart(e) {
-        const bookmarkItem = e.target.closest('.bookmark-item');
-        if (!bookmarkItem) return;
 
-        this.draggedItem = {
-            id: bookmarkItem.dataset.id,
-            element: bookmarkItem
-        };
 
-        // 添加拖拽样式
-        bookmarkItem.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', bookmarkItem.dataset.id);
-    }
 
-    // 拖拽悬停
-    handleDragOver(e) {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-
-        // 查找目标文件夹（可能是文件夹本身或其子元素）
-        const targetFolder = e.target.closest('.folder');
-        const targetItem = e.target.closest('.bookmark-item');
-
-        if (!targetItem || !this.draggedItem) return;
-
-        // 移除之前的拖拽指示
-        document.querySelectorAll('.drag-over').forEach(el => {
-            el.classList.remove('drag-over');
-        });
-
-        // 只允许拖拽到文件夹
-        const targetId = targetItem.dataset.id;
-        if (targetId && targetId !== this.draggedItem.id && targetFolder) {
-            // 检查目标是否为文件夹
-            chrome.bookmarks.get(targetId).then(bookmarks => {
-                if (bookmarks[0] && bookmarks[0].children !== undefined) {
-                    targetItem.classList.add('drag-over');
-                }
-            }).catch(() => {
-                // 如果获取失败，不显示拖拽指示
-            });
-        }
-    }
-
-    // 拖拽放下
-    async handleDrop(e) {
-        e.preventDefault();
-
-        // 查找目标文件夹
-        const targetFolder = e.target.closest('.folder');
-        const targetItem = e.target.closest('.bookmark-item');
-
-        if (!targetItem || !this.draggedItem) return;
-
-        const targetId = targetItem.dataset.id;
-        const draggedId = this.draggedItem.id;
-
-        if (targetId === draggedId) return;
-
-        try {
-            // 检查目标是否为文件夹
-            const targetBookmarks = await chrome.bookmarks.get(targetId);
-            if (!targetBookmarks[0] || targetBookmarks[0].children === undefined || !targetFolder) {
-                this.showMessage('只能移动到文件夹中', 'error');
-                return;
-            }
-
-            // 执行移动操作
-            await chrome.bookmarks.move(draggedId, { parentId: targetId });
-
-            // 局部刷新：移除被拖拽的元素
-            this.draggedItem.element.remove();
-
-            this.showMessage('书签已移动', 'success');
-        } catch (error) {
-            console.error('移动失败:', error);
-            this.showMessage('移动失败: ' + error.message, 'error');
-        }
-    }
-
-    // 拖拽结束
-    handleDragEnd(e) {
-        // 清理拖拽状态
-        document.querySelectorAll('.dragging').forEach(el => {
-            el.classList.remove('dragging');
-        });
-        document.querySelectorAll('.drag-over').forEach(el => {
-            el.classList.remove('drag-over');
-        });
-
-        this.draggedItem = null;
-    }
 
     // 局部删除书签元素（避免全量刷新）
     removeBookmarkElement(id) {
