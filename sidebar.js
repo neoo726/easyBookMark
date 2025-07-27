@@ -131,12 +131,8 @@ class BookmarkSidebar {
             // 文件夹
             div.className += ' folder';
 
-            // 只有一级文件夹默认展开，其他级别默认折叠
-            if (level === 0) {
-                // 一级文件夹默认展开
-                div.classList.add('expanded');
-            }
-            // 二级及以上文件夹默认折叠（不添加expanded类）
+            // 所有文件夹默认折叠状态（不添加expanded类）
+            // 用户需要手动点击展开
 
             div.innerHTML = `
                 <div class="folder-header" data-id="${node.id}">
@@ -247,14 +243,21 @@ class BookmarkSidebar {
             const div = document.createElement('div');
             div.className = 'bookmark-item';
             div.dataset.index = index;
+            div.dataset.id = bookmark.id; // 添加data-id到bookmark-item
 
             const faviconUrl = this.getFaviconUrl(bookmark.url);
             div.innerHTML = `
-                <a class="bookmark-link" href="${bookmark.url}" data-id="${bookmark.id}" data-url="${bookmark.url}">
-                    <span class="bookmark-icon" style="background-image: url('${faviconUrl}')"></span>
-                    <span class="bookmark-title">${this.highlightMatch(bookmark.title, this.searchInput.value)}</span>
-                    <span class="bookmark-url">${this.getDomain(bookmark.url)}</span>
-                </a>
+                <div class="bookmark-container" data-id="${bookmark.id}">
+                    <a class="bookmark-link" href="${bookmark.url}" data-id="${bookmark.id}" data-url="${bookmark.url}">
+                        <span class="bookmark-icon" style="background-image: url('${faviconUrl}')"></span>
+                        <span class="bookmark-title">${this.highlightMatch(bookmark.title, this.searchInput.value)}</span>
+                        <span class="bookmark-url">${this.getDomain(bookmark.url)}</span>
+                    </a>
+                    <div class="bookmark-actions">
+                        <button class="action-btn edit-btn" title="编辑书签" data-action="edit" data-id="${bookmark.id}">✏️</button>
+                        <button class="action-btn delete-btn" title="删除书签" data-action="delete" data-id="${bookmark.id}">🗑️</button>
+                    </div>
+                </div>
             `;
 
             this.bookmarksTree.appendChild(div);
@@ -686,27 +689,42 @@ class BookmarkSidebar {
 
     // 删除书签
     async deleteBookmark(id) {
-        const bookmark = await chrome.bookmarks.get(id);
-        if (!bookmark || bookmark.length === 0) return;
+        console.log('删除书签，ID:', id); // 调试信息
 
-        const item = bookmark[0];
-        const isFolder = !item.url;
-
-        const confirmMsg = isFolder
-            ? `确定要删除文件夹 "${item.title}" 及其所有内容吗？`
-            : `确定要删除书签 "${item.title}" 吗？`;
-
-        if (!confirm(confirmMsg)) return;
-
-        if (isFolder) {
-            await chrome.bookmarks.removeTree(id);
-        } else {
-            await chrome.bookmarks.remove(id);
+        if (!id) {
+            this.showMessage('书签ID无效', 'error');
+            return;
         }
 
-        // 使用局部刷新而不是全量刷新
-        this.removeBookmarkElement(id);
-        this.showMessage(isFolder ? '文件夹已删除' : '书签已删除', 'success');
+        try {
+            const bookmark = await chrome.bookmarks.get(id);
+            if (!bookmark || bookmark.length === 0) {
+                this.showMessage('找不到指定的书签', 'error');
+                return;
+            }
+
+            const item = bookmark[0];
+            const isFolder = !item.url;
+
+            const confirmMsg = isFolder
+                ? `确定要删除文件夹 "${item.title}" 及其所有内容吗？`
+                : `确定要删除书签 "${item.title}" 吗？`;
+
+            if (!confirm(confirmMsg)) return;
+
+            if (isFolder) {
+                await chrome.bookmarks.removeTree(id);
+            } else {
+                await chrome.bookmarks.remove(id);
+            }
+
+            // 使用局部刷新而不是全量刷新
+            this.removeBookmarkElement(id);
+            this.showMessage(isFolder ? '文件夹已删除' : '书签已删除', 'success');
+        } catch (error) {
+            console.error('删除书签失败:', error);
+            this.showMessage('删除失败: ' + error.message, 'error');
+        }
     }
 
 
@@ -732,9 +750,19 @@ class BookmarkSidebar {
         e.preventDefault();
 
         const bookmarkItem = e.target.closest('.bookmark-item');
-        if (!bookmarkItem) return;
+        if (!bookmarkItem) {
+            console.log('未找到bookmark-item元素');
+            return;
+        }
 
         const id = bookmarkItem.dataset.id;
+        console.log('右键菜单，获取到的ID:', id); // 调试信息
+
+        if (!id) {
+            console.log('bookmark-item没有data-id属性');
+            return;
+        }
+
         this.showContextMenu(e.clientX, e.clientY, id);
     }
 
