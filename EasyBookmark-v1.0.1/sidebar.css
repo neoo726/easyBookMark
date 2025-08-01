@@ -1,0 +1,529 @@
+/* 基础样式重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #333;
+    background-color: #fafafa;
+    overflow-x: hidden;
+}
+
+/* 侧边栏容器 */
+.sidebar-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+}
+
+/* 标题栏样式已隐藏 */
+/*
+.header-section {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #f9fafb;
+    flex-shrink: 0;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.header-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.header-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    user-select: none;
+}
+
+.close-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    padding: 0;
+}
+
+.close-button:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+.close-button:active {
+    background-color: #e5e7eb;
+    transform: scale(0.95);
+}
+*/
+
+/* 搜索区域 */
+.search-section {
+    padding: 12px;
+    background: #fff;
+    border-bottom: 1px solid #e1e5e9;
+    flex-shrink: 0;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 8px 32px 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#searchInput:focus {
+    outline: none;
+    border-color: #0078d4;
+    box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    right: 10px;
+    color: #6b7280;
+    pointer-events: none;
+}
+
+.search-tips {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #6b7280;
+    text-align: center;
+}
+
+/* 书签区域 */
+.bookmarks-section {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+/* 加载状态 */
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #6b7280;
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e5e7eb;
+    border-top: 2px solid #0078d4;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 书签树样式 */
+.bookmarks-tree {
+    padding: 0 4px;
+}
+
+.bookmark-item {
+    margin: 1px 0;
+}
+
+/* 文件夹样式 */
+.folder {
+    margin: 2px 0;
+}
+
+.folder-header {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.15s;
+    user-select: none;
+    position: relative;
+}
+
+.folder-header:hover .bookmark-actions {
+    opacity: 1;
+}
+
+.folder-header:hover {
+    background-color: #f3f4f6;
+}
+
+.folder-header.selected {
+    background-color: #e3f2fd;
+}
+
+.folder-toggle {
+    margin-right: 6px;
+    font-size: 12px;
+    color: #6b7280;
+    user-select: none;
+}
+
+.folder-icon {
+    margin-right: 6px;
+    font-size: 14px;
+}
+
+.folder-title {
+    flex: 1;
+    font-weight: 500;
+    color: #374151;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.folder-content {
+    margin-left: 16px;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    max-height: 0; /* 默认折叠 */
+}
+
+.folder:not(.expanded) > .folder-content {
+    max-height: 0 !important; /* 强制折叠，使用直接子选择器 */
+}
+
+.folder.expanded > .folder-content {
+    max-height: 2000px; /* 只展开直接子内容 */
+}
+
+/* 书签链接样式 */
+.bookmark-link {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    margin: 1px 0;
+    text-decoration: none;
+    color: #374151;
+    border-radius: 4px;
+    transition: background-color 0.15s;
+    cursor: pointer;
+}
+
+.bookmark-link:hover {
+    background-color: #f3f4f6;
+    text-decoration: none;
+}
+
+.bookmark-link.selected {
+    background-color: #e3f2fd;
+}
+
+.bookmark-icon {
+    margin-right: 8px;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
+    position: relative;
+}
+
+.bookmark-icon::after {
+    content: '🔗';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    background: transparent;
+    z-index: -1;
+}
+
+.bookmark-title {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+}
+
+.bookmark-url {
+    font-size: 11px;
+    color: #6b7280;
+    margin-left: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100px;
+}
+
+/* 无结果状态 */
+.no-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.no-results-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+}
+
+.no-results-text {
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 4px;
+}
+
+.no-results-tip {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* 快捷键提示 */
+.shortcuts-info {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 8px 12px;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.shortcut-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.key {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-family: monospace;
+    font-size: 10px;
+    color: #374151;
+}
+
+/* 搜索高亮 */
+.highlight {
+    background-color: #fef3c7;
+    color: #92400e;
+    padding: 0 1px;
+    border-radius: 2px;
+}
+
+/* 滚动条样式 */
+.bookmarks-section::-webkit-scrollbar {
+    width: 6px;
+}
+
+.bookmarks-section::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.bookmarks-section::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.bookmarks-section::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* 响应式设计 */
+@media (max-width: 300px) {
+    .bookmark-url {
+        display: none;
+    }
+    
+    .shortcuts-info {
+        flex-direction: column;
+        gap: 4px;
+    }
+}
+
+/* 书签操作按钮样式 */
+.bookmark-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    margin-left: auto;
+}
+
+.bookmark-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.bookmark-container:hover .bookmark-actions {
+    opacity: 1;
+}
+
+.action-btn {
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: transparent;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s;
+    color: #6b7280;
+}
+
+.action-btn:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+.edit-btn:hover {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+}
+
+.delete-btn:hover {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+
+
+
+
+/* 右键菜单 */
+.context-menu {
+    position: fixed;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 120px;
+    overflow: hidden;
+}
+
+.context-menu-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #374151;
+    transition: background-color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.context-menu-item:hover {
+    background-color: #f3f4f6;
+}
+
+/* 消息提示 */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+}
+
+.toast-success {
+    background-color: #10b981;
+}
+
+.toast-error {
+    background-color: #ef4444;
+}
+
+.toast-info {
+    background-color: #3b82f6;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* 书签项样式 */
+.bookmark-item {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* 确保文件夹默认折叠 - 使用直接子选择器避免嵌套问题 */
+.folder:not(.expanded) > .folder-content {
+    max-height: 0 !important;
+    overflow: hidden;
+}
+
+.folder.expanded > .folder-content {
+    max-height: 2000px;
+}

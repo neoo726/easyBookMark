@@ -13,7 +13,7 @@ New-Item -ItemType Directory -Path $buildDir | Out-Null
 # 复制必要的文件到构建目录（只包含运行时需要的文件）
 $filesToCopy = @(
     "manifest.json",
-    "background.js", 
+    "background.js",
     "sidebar.html",
     "sidebar.css",
     "sidebar.js",
